@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      ehg54
+HostName                       en-ec-ecelinux-01.coecis.cornell.edu
+ProcessIdentifier              45940
+ProcessCreationTime_UTC        1710122121
+ProcessCreationTime_Readable   Sun Mar 10 21:55:21 2024 EDT
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/ehg54/Cadence/ece4740/lab2decode_sim/schematic/sch.oa.cdslck
+TimeEditLocked                 Sun Mar 10 21:59:43 2024 EDT
