@@ -1,60 +1,152 @@
-%% Before running, set up the testbench cell name on line 8
-% your decoder outputs should be labeled as Y0,Y1,Y2,Y3, ..., Y63
-% your decoder inputs should be labeled as A5, A4, A3, A2, A1, A0
-%
-
-% set up the name of your testbench cell
-tb_name = 'testbench_directory';
-
 % set up cds_srr function
 addpath('/opt/cadence/INNOVUS201/tools.lnx86/spectre/matlab/64bit');
 
 % directory that contains the simulation outputs
-directory = sprintf('%s/Cadence/%s.psf', getenv('HOME'), tb_name);
+directory = sprintf('%s/Cadence/%s.psf', getenv('HOME'), '8_bit_adder_static_cmos');
 
 % set up basic parameters
 Vdd = 1.2; % define vdd
+addrBits = 6;
+% numBits = 4;
+nTestBenches = 1;
+%nTestCases = 8; % 2 for testing
+nTestCases = 64;
+startDelay = 1000;
 
 % define period (in ps)
-period_a = 1000; % A
-period_b =  500; % B
+period_a = 4000; % A
+period_clk = 4000; % CLK
 
 % get input signals
-a = cds_srr(directory, 'tran-tran', '/A', 0);
-b = cds_srr(directory, 'tran-tran', '/B', 0);
+addr_0 = cds_srr(directory, 'tran-tran', '/addr_in<0>', 0);
+% cin = cds_srr(directory, 'tran-tran', '/OutC', 0);
+% cout = cds_srr(directory, 'tran-tran', '/Cout_2', 0);
+% Extract voltage for Cin
+cin =  cin.V;
+cout = cout.V;
 
 % convert time into ps
-t_ps = a.time*1e12;
+% t_ps is an array of times that has now been normalized
+t_ps = a_0.time*1e12;
 
 % extract voltages of signals
-a = a.V;
-b = b.V;
+% a = a.V;
+% b = b.V;
 
 % get output signals and put them together in a table where the i-th
 % column corresponds to the 'Y(i-1)' output
-y_mtx = [];
-for i=1:4
-    signal_name = ['/Y',int2str(i-1)];
-    y = cds_srr(directory, 'tran-tran', signal_name, 0);
-    y_mtx = [y_mtx y.V];
+s_vec = [];
+a_vec = [];
+b_vec = [];
+for i=1:numBits
+%   Concatenate the name to access the right Y(i-1) output
+    signal_name = ['/S_2<', int2str(i-1), '>'];
+    s = cds_srr(directory, 'tran-tran', signal_name, 0);
+%   Append voltages to form y_mtx with [Y7 .. Y0]
+    s_vec = [s.V s_vec];
+
+%   Do the same for input vector A across all 8 bits
+    signal_name_a = ['/OutA<', int2str(i-1), '>'];
+    a = cds_srr(directory, 'tran-tran', signal_name_a, 0);
+%     Append to form [A7 .. A0]
+    a_vec = [a.V a_vec];
+
+%   Do the same for input vector B across all 8 bits
+    signal_name_b = ['/OutB<', int2str(i-1), '>'];
+    b = cds_srr(directory, 'tran-tran', signal_name_b, 0);
+    b_vec = [b.V b_vec];
+
 end
 
-exp_y_mtx = zeros(size(y_mtx));
-sample_wvf = zeros(size(y_mtx));
-mydecoder_output = zeros(4,4);
-exp_decoder_output = zeros(4,4);
+% Expected output
+% exp_y_vec = zeros(size(s_vec));
+% exp_cout_vec = zeros(size(s_vec, 1));
+% sample_wvf = zeros(size(s_vec));decimal_cin = (cin > Vdd/2);
 
-% we sample the inputs at the middle of a cycle
-t_ps_sample_in = 6*period_a + period_b/2 + (0:3)*period_b;
+% we sample the inputs from FF at the middle of a cycle
+%t_ps_sample_in = startDelay + period_a/2 + (0:nTestCases)*period_a;
+t_ps_sample_in = startDelay + period_clk/2 + (0:nTestCases)*period_clk;
 
-% we sample the outputs 230ps after an input changes (each 500ps),
-% during the fourth time the inputs repeat
-t_ps_sample_out = 6*period_a + 10 + 230 + (0:3)*period_b;
+% we sample the outputs midway after an input changes (each 2000ps),
+t_ps_sample_out = startDelay + period_clk*0.75 + (0:nTestCases)*period_clk;
 
-%% decoder output
+%% adder output
 
-% create base for expected output waveform
-a_bits = (a > Vdd/2);
-b_bits = (b > Vdd/2);
-vec_bits = [a_bits b_bits];
-exp_dec = bi2de(vec_bits,'left-msb');
+% Convert the analog output into digital signals and then into decimal numbers in an array
+digital_a = (a_vec > Vdd/2);
+decimal_a = bi2de(digital_a,'left-msb');
+digital_b = (b_vec > Vdd/2);
+decimal_b = bi2de(digital_b,'left-msb');
+digital_s = (s_vec > Vdd/2);
+decimal_s = bi2de(digital_s,'left-msb');
+
+decimal_cin = (cin > Vdd/2);
+decimal_cout = (cout > Vdd/2);
+exp_decimal_s = decimal_a + decimal_b + decimal_cin;
+% NOTE THAT MATLAB TAKES THE LSB AS BIT 1, CARRY OUT BIT IS NUMBITS + 1
+exp_decimal_cout = bitget(exp_decimal_s, numBits+1);
+%remove carry out bit
+exp_decimal_s = bitset(exp_decimal_s, numBits+1, 0);
+
+% Actual output
+myadder_output = zeros(nTestCases);
+% Expected decoder output
+exp_adder_output = zeros(nTestCases);
+% Actual cout
+myadder_cout = zeros(nTestCases);
+% Expected decoder output
+exp_adder_cout = zeros(nTestCases);
+
+
+%Check each one of the sampling points
+err_flag = 0;
+for i=1:nTestCases
+    % find t_ps closest (from the right) to the t_ps_sample_in and _out
+%     What does this do?
+%     t_ps_idx_in get the first index corresponding to \geq sample time
+    t_ps_idx_in  = find(t_ps-t_ps_sample_in(i)>=0,1);
+%     t_ps_idx_out get the first actual recorded output time that is more than the sample time
+    t_ps_idx_out = find(t_ps-t_ps_sample_out(i)>=0,1);
+    
+    % measure the outputs and declare 1 if it is greater than Vdd/2    
+    myadder_output(i) = decimal_s(t_ps_idx_out);
+    exp_adder_output(i) = exp_decimal_s(t_ps_idx_out);
+    
+    myadder_cout(i) = decimal_cout(t_ps_idx_out);
+    exp_adder_cout(i) = exp_decimal_cout(t_ps_idx_out);
+
+
+    if (sum(exp_adder_cout(i) ~= myadder_cout(i)) > 0 || sum(exp_adder_output(i,:) ~= myadder_output(i,:)) > 0)
+        disp(['Test ' num2str(i)...
+            '/' num2str(nTestCases) ...
+            ' WRONG -------'...
+            'Expected output for input '...
+            'A=' num2str(decimal_a(t_ps_idx_in)) ...
+            ' B=' num2str(decimal_b(t_ps_idx_in)) ...        
+            ' C=' num2str(decimal_cout(t_ps_idx_in))...
+            ' is s=' num2str(exp_adder_output(i)) ...
+            ' and cout=' num2str(exp_adder_cout(i)) ...
+            ' but measured output is s=' num2str(myadder_output(i))...
+            ' and cout=' num2str(myadder_cout(i))...
+            ]) 
+        err_flag  = err_flag + 1;
+    else
+        disp(['Test ' num2str(i)...
+            '/' num2str(nTestCases) ...
+            ' CORRECT -------'...
+            'Expected output for input '...
+            'A=' num2str(decimal_a(t_ps_idx_in)) ...
+            ' B=' num2str(decimal_b(t_ps_idx_in)) ...        
+            ' C=' num2str(decimal_cout(t_ps_idx_in))...
+            ' is s=' num2str(exp_adder_output(i)) ...
+            ' and cout=' num2str(exp_adder_cout(i)) ...
+            ' Measured output'...
+            ' s=' num2str(myadder_output(i))...
+            ' and cout=' num2str(myadder_cout(i))...
+            ]) 
+    end
+end
+disp(['Correct cases: ' num2str(nTestCases - err_flag) '/' num2str(nTestCases)]);
+if err_flag == 0
+    disp('The adder circuit has no errors :)')
+end
