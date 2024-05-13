@@ -70,8 +70,6 @@ integer			curTestCount = 0;
 integer			tb2Count = 0;
 integer			tb3Count = 0;
 integer			tb4Count = 1;
-integer			tb5Count = 1;
-integer			tb6Count = 1;
 
 // Initialize counters to be used in for-loop
 // Cannot use integers as the for-loop used is a "generator construct"
@@ -121,66 +119,63 @@ analog begin
 	// Testsuite 1
 		curTestCount = curTestCount + 1;
 		if (curTestCount <= tb1) begin
-			A_curr = 0;
-			B_curr = 0;
-			Cin_curr = 0;
+			BIT_curr = 0;
+			BIT_L_curr = 0;
+			WE_curr = 0;
+			D_IN_curr = 1;
 			if(curTestCount == 2) begin
-				Cin_curr = 1;
+				WE_curr = 1;
 			end
 		end
 
 	// Testsuite 2
 		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
-			A_curr = 8'b11111111;
-			B_curr = (1 << tb2Count);
-			Cin_curr = 0;
+			BIT_curr = 1;
+			BIT_L_curr = 0;
+			WE_curr = 0;
+			D_IN_curr = 0;
 			tb2Count  = tb2Count + 1;
 		end
 
 	// Testsuite 3
 		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
-			A_curr = (1 << tb3Count);
-			B_curr = 8'b11111111;
-			Cin_curr = 0;
+			BIT_curr = 1;
+			BIT_L_curr = 0;
+			WE_curr = 0;
+			D_IN_curr = 0;
+			if(tb3Count == 2) begin
+				WE_curr = 1;
+			end
 			tb3Count  = tb3Count + 1;
 		end
 
 	// Testsuite 4
 		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
-			A_curr = 8'b11111111;
-			B_curr = 0;
-			Cin_curr = 1;
-			if(tb4Count == 2) begin
-				A_curr = 0;
-				B_curr = 8'b11111111;
-				Cin_curr = 1;
-			end
+			BIT_curr = 0;
+			BIT_L_curr = 1;
+			WE_curr = 0;
+			D_IN_curr = 0;
 			tb4Count  = tb4Count + 1;
 		end
 
 	// Testsuite 5
 		if (tb1 + tb2 + tb3 + tb4 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5) begin
-			A_curr = 8'b00001111;
-			B_curr = 0;
-			Cin_curr = 1;
+			BIT_curr = 0;
+			BIT_L_curr = 1;
+			WE_curr = 0;
+			D_IN_curr = 1;
 			if(tb5Count == 2) begin
-				A_curr = 0;
-				B_curr = 8'b00001111;
-				Cin_curr = 1;
+				WE_curr = 1;
 			end
-			tb5Count  = tb5Count + 1;
+			tb5Count = tb5Count+1;
 		end
 
 	// Testsuite 6
 		if (tb1 + tb2 + tb3 + tb4 + tb5 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5 + tb6) begin
-			A_curr = 8'b01010101;
-			B_curr = 8'b10101010;
-			Cin_curr = 0;
-			if(tb6Count == 2) begin
-				A_curr = 8'b01010101;
-				B_curr = 8'b10101010;
-				Cin_curr = 1;
-			end
+			BIT_curr = 1;
+			BIT_L_curr = 0;
+			WE_curr = 0;
+			D_IN_curr = 0;
 			tb6Count  = tb6Count + 1;
 		end
 	end
@@ -188,11 +183,10 @@ analog begin
 
 	// Parse integer testcase inputs into binary,
 	// write resultant binary to N-bit output pins
-	for (j = 0; j < `NBITS; j = j + 1) begin
-		V(A[j])	 <+ transition(A_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
-		V(B[j])	 <+ transition(B_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
-	end
-	V(Cin)	 <+ transition(Cin_curr ? v_high : v_low, 0, trise, tfall);
+	V(BIT)	 <+ transition(BIT_curr ? v_high : v_low, 0, trise, tfall);
+	V(BIT_L) <+ transition(BIT_L_curr ? v_high : v_low, 0, trise, tfall);
+	V(WE)	 <+ transition(WE_curr ? v_high : v_low, 0, trise, tfall);
+	V(D_IN)  <+ transition(D_IN_curr ? v_high : v_low, 0, trise, tfall);
 
 end
 
