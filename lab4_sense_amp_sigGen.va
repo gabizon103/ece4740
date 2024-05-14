@@ -1,4 +1,4 @@
-// VerilogA test signal generator for 8-bit adder in Cadence Virtuoso
+
 
 // Includes required files for Cadence Virtuoso
 `include "constants.vams"
