@@ -53,7 +53,7 @@ parameter real	v_low = 0.0;
 
 // Initialize integer variables for signal generator outputs
 // A, B, Cin are inputs to the N-bit adder
-integer[7:0] 		D_IN_curr;
+integer 		D_IN_curr;
 integer 		WE_curr;
 
 // Keeps track of how many testcases have completed
@@ -76,7 +76,7 @@ analog begin
 
 	// Initialize signal generator output values
 	@(initial_step) begin
-		D_IN_curr = 8'b0;
+		D_IN_curr = 0;
 		WE_curr = 0;
 	end
 
@@ -112,33 +112,33 @@ analog begin
 	// Testsuite 1
 		curTestCount = curTestCount + 1;
 		if (curTestCount <= tb1) begin
-			D_IN_curr = 8'b1;
+			D_IN_curr = 1;
             WE_curr = 1;
 		end
 
 	// Testsuite 2
 		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
-			D_IN_curr = 8'd30;
+			D_IN_curr = 30;
             WE_curr = 0;
 			tb2Count  = tb2Count + 1;
 		end
 
 	// Testsuite 3
 		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
-			D_IN_curr = 8'd100;
+			D_IN_curr = 100;
             WE_curr = 1;
 			tb3Count  = tb3Count + 1;
 		end
 
 	// Testsuite 4
 		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
-			D_IN_curr = 8'd256;
+			D_IN_curr = 255;
             WE_curr = 0;
 			tb4Count  = tb4Count + 1;
 		end
     // Testsuite 5
         if (tb1 + tb2 + tb3 + tb4 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5) begin
-            D_IN_curr = 8'd256;
+            D_IN_curr = 255;
             WE_curr = 1;
 			tb5Count = tb5Count+1;
 		end
