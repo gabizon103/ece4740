@@ -23,7 +23,7 @@ localparam cp = 4000p;
 localparam cp2 = 2000p;
 
 // number of tests
-localparam tb = 5;
+localparam tb = 7;
 
 // clk constants
 real clk_sig;
