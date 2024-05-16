@@ -112,7 +112,7 @@ analog begin
 				word_curr = 1;
 		end
 
-	// Testsuite 4: Write 0
+	// Testsuite 4: Read 0
 		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
 			word_curr = 0;
 			WE_curr = 0;
@@ -121,7 +121,7 @@ analog begin
 				word_curr = 1;
 		end
 
-	// Testsuite 5
+	// Testsuite 5: Write 1
 		if (tb1 + tb2 + tb3 + tb4 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5) begin
 			word_curr = 0;
 			WE_curr = 1;
@@ -130,7 +130,7 @@ analog begin
 				word_curr = 1;
 		end
 
-	// Testsuite 6
+	// Testsuite 6: Read 1
 		if (tb1 + tb2 + tb3 + tb4 + tb5 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5 + tb6) begin
 			WE_curr = 0;
 			D_IN_curr = 0;
@@ -145,7 +145,7 @@ analog begin
 	// write resultant binary to N-bit output pins
 	V(WE) <+ transition(WE_curr ? v_high : v_low, 0, trise, tfall);
 	V(D_IN) <+ transition(D_IN_curr ? v_high : v_low, 0, trise, tfall);
-	V(word) <+ transition(word ? v_high : v_low, 0, trise, tfall);
+	V(word) <+ transition(word_curr ? v_high : v_low, 0, trise, tfall);
 
 end
 

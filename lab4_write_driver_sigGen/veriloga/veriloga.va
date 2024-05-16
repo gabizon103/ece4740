@@ -54,13 +54,6 @@ integer			word_curr;
 // Keeps track of how many testcases have completed
 integer			curTestCount = 0;
 
-// Testsuite specific helper variables
-integer			tb2Count = 0;
-integer			tb3Count = 0;
-integer			tb4Count = 1;
-integer 			tb5Count = 1;
-integer 			tb6Count = 1;
-
 // Initialize counters to be used in for-loop
 // Cannot use integers as the for-loop used is a "generator construct"
 genvar			j;
@@ -112,7 +105,7 @@ analog begin
 				word_curr = 1;
 		end
 
-	// Testsuite 4: Write 0
+	// Testsuite 4: Read 0
 		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
 			word_curr = 0;
 			WE_curr = 0;
@@ -121,21 +114,21 @@ analog begin
 				word_curr = 1;
 		end
 
-	// Testsuite 5
+	// Testsuite 5: Write 1
 		if (tb1 + tb2 + tb3 + tb4 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5) begin
 			word_curr = 0;
 			WE_curr = 1;
 			D_IN_curr = 1;
-			if (curTestCount == tb1 + tb2 + tb3 + tb4)
+			if (curTestCount == tb1 + tb2 + tb3 + tb4 + tb5)
 				word_curr = 1;
 		end
 
-	// Testsuite 6
+	// Testsuite 6: Read 1
 		if (tb1 + tb2 + tb3 + tb4 + tb5 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5 + tb6) begin
 			WE_curr = 0;
 			D_IN_curr = 0;
 			word_curr = 0;
-			if (curTestCount == tb1 + tb2 + tb3 + tb4 + tb5)
+			if (curTestCount == tb1 + tb2 + tb3 + tb4 + tb5 + tb6)
 				word_curr = 1;
 		end
 	end
