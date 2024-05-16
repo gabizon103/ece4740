@@ -3,10 +3,10 @@
 `include "constants.vams"
 `include "disciplines.vams"
 
-module lab4_sram_test_gen(word, bit, bit_b, q);
+module lab4_sram_test_gen(word, we, d);
 
-output word, bit, bit_b, q;
-voltage word, bit, bit_b, q;
+output word, we, d;
+voltage word, we, d;
 
 parameter real v_high = 1.2;
 parameter real v_low = 0.0;
@@ -20,12 +20,14 @@ localparam cp = 4000p;
 // Number of testcases per testsuite
 localparam tb1 = 2;
 localparam tb2 = 2;
+localparam tb3 = 2;
+localparam tb4 = 2;
 
 // Constants for clock periods
 parameter real	clk_period = cp from (0:inf);
 
 // int vars for sig gen outputs
-integer word_curr, bit_curr, bit_b_curr, q_curr;
+integer word_curr, we_curr, d_curr;
 
 integer curTestCount = 0;
 
@@ -34,10 +36,9 @@ analog begin
 
 	// Initialize signal generator output values
 	@(initial_step) begin
-		q_curr = 0;
-		bit_curr = 0;
-		bit_b_curr = 0;
 		word_curr = 0;
+		we_curr = 0;
+		d_curr = 0;
 	end
 	
 	// Timer block to run testcases
@@ -46,21 +47,38 @@ analog begin
 		// Testsuite 1: Write 1
 		curTestCount = curTestCount + 1;
 		if (curTestCount <= tb1) begin
-			q_curr = 0;
-			bit_curr = 1;
-			bit_b_curr = 0;
 			word_curr = 0;
-			if(curTestCount == 1) begin
+			we_curr = 1;
+			d_curr = 1;
+			if(curTestCount == tb1) begin
 				word_curr = 1;
 			end
 		end
 
-		// Testsuite 2: Write 0
+		// Testsuite 2: Read 1
 		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
-			q_curr = 1;
-			bit_curr = 0;
-			bit_b_curr = 0;
 			word_curr = 0;
+			we_curr = 0;
+			if(curTestCount == tb1 + tb2) begin
+				word_curr = 1;
+			end
+		end
+
+		// Testsuite 3: Write 0
+		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
+			word_curr = 0;
+			we_curr = 1;
+			d_curr = 0;
+			if(curTestCount == tb1 + tb2 + tb3) begin
+				word_curr = 1;
+			end
+		end
+
+		// Testsuite 4: Read 0
+		if (tb1 + tb2 +tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
+			word_curr = 0;
+			we_curr = 0;
+			d_curr = 1;
 			if(curTestCount == tb1 + 1) begin
 				word_curr = 1;
 			end
@@ -70,9 +88,8 @@ analog begin
 	
 	// Set outputs
 	V(word) <+ transition(word_curr ? v_high : v_low, trise, tfall);
-	V(bit) <+ transition(bit_curr ? v_high : v_low, trise, tfall);
-	V(bit_b) <+ transition(bit_b_curr ? v_high : v_low, trise, tfall);
-	V(q) <+ transition(q_curr ? v_high : v_low, trise, tfall);
+	V(we) <+ transition(we_curr ? v_high : v_low, trise, tfall);
+	V(d) <+ transition(d_curr ? v_high : v_low, trise, tfall);
 
 end
 
