@@ -43,11 +43,11 @@ analog begin
 	// Timer block to run testcases
 	@(timer(0.5n, clk_period)) begin
 
-		// Testsuite 1: Read 0
+		// Testsuite 1: Write 0
 		curTestCount = curTestCount + 1;
 		if (curTestCount <= tb1) begin
 			q_curr = 0;
-			bit_curr = 1;
+			bit_curr = 0;
 			bit_b_curr = 0;
 			word_curr = 0;
 			if(curTestCount == 1) begin
@@ -55,7 +55,7 @@ analog begin
 			end
 		end
 
-		// Testsuite 2: Read 1
+		// Testsuite 2: Write 1
 		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
 			q_curr = 1;
 			bit_curr = 1;
