@@ -1,0 +1,9 @@
+// VerilogA for ece4740, lab4_sense_amp_sigGen, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module lab4_sense_amp_sigGen;
+
+
+endmodule

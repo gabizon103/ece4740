@@ -1,0 +1,147 @@
+
+// Includes required files for Cadence Virtuoso
+`include "constants.vams"
+`include "disciplines.vams"
+
+
+/*
+ 	-------------------------------------------------
+				SIGNAL GENERATOR MODULE
+	-------------------------------------------------
+*/
+// Declare test signal generator module
+module lab4_8_sense_amp_sigGen(BIT, BIT_L,CLK);
+
+// Declare outputs
+output CLK;
+// Declare 8-bit outputs from MSB-LSB ordering
+output[7:0] BIT;
+output[7:0] BIT_L;
+
+// Specify desired output type to be a continuous voltage signal
+voltage CLK;
+voltage[7:0] BIT;
+voltage[7:0] BIT_L;
+
+// Declare locally-scoped constants using localparam keyword
+// Clock period for test cases
+localparam cp = 4000p;
+// Clock half-period for FF clock latch signal
+localparam cp2 = 2000p;
+
+// Number of testcases per testsuite
+localparam tb1 = 2;
+localparam tb2 = 2;
+localparam tb3 = 2;
+localparam tb4 = 2;
+localparam tb5 = 2;
+localparam tb6 = 2;
+
+// Tracks clock signal high/low value
+real			clk_sig;
+
+// Constants for clock periods
+parameter real	clk_period = cp from (0:inf);
+parameter real	clk_period2 = cp2 from (0:inf);
+parameter real	trise = 20p from [0:inf];
+parameter real	tfall = 20p from [0:inf];
+
+// Constants for voltage signal bounds
+parameter real	v_high = 1.2;
+parameter real	v_low = 0.0;
+
+// Initialize integer variables for signal generator outputs
+// A, B, Cin are inputs to the N-bit adder
+integer 		BIT_curr;
+integer 		BIT_L_curr;
+
+// Keeps track of how many testcases have completed
+integer			curTestCount = 0;
+
+// Testsuite specific helper variables
+integer			tb2Count = 0;
+integer			tb3Count = 0;
+integer			tb4Count = 1;
+
+// Initialize counters to be used in for-loop
+// Cannot use integers as the for-loop used is a "generator construct"
+genvar			j;
+
+
+// Start analog description of module
+analog begin
+
+	// Initialize signal generator output values
+	@(initial_step) begin
+		BIT_curr = 0;
+		BIT_L_curr = 0;
+	end
+
+/*
+ 	-------------------------------------------------
+				FF BUFFER STAGE CLOCK SIGNAL
+	-------------------------------------------------
+*/
+
+	// Timer block to oscillate flip-flop latch clock signal
+	@(timer(1n,clk_period2)) begin
+		if (clk_sig == v_low) begin 
+			clk_sig = v_high;
+		end
+		else begin
+			clk_sig = v_low;
+		end
+	end
+
+	// Write to CLK output pin
+	V(CLK)	 <+ transition(clk_sig, 0, trise, tfall);
+
+
+/*
+ 	-------------------------------------------------
+				TESTCASE DEFINITIONS
+	-------------------------------------------------
+*/
+
+	// Timer block to run testcases
+	@(timer(0.5n,clk_period)) begin
+
+	// Testsuite 1
+		curTestCount = curTestCount + 1;
+		if (curTestCount <= tb1) begin
+			BIT_curr = 0;
+			BIT_L_curr = 0;
+		end
+
+	// Testsuite 2
+		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
+			BIT_curr = 255;
+			BIT_L_curr = 0;
+			tb2Count  = tb2Count + 1;
+		end
+
+	// Testsuite 3
+		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
+			BIT_curr = 8;
+			BIT_L_curr = 248;
+			tb3Count  = tb3Count + 1;
+		end
+
+	// Testsuite 4
+		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
+			BIT_curr = 0;
+			BIT_L_curr = 255;
+			tb4Count  = tb4Count + 1;
+		end
+	end
+
+
+	// Parse integer testcase inputs into binary,
+	// write resultant binary to N-bit output pins
+	for (j = 0; j < 8; j = j + 1) begin
+		V(BIT[j])	 <+ transition(BIT_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+		V(BIT_L[j])	 <+ transition(BIT_L_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+	end
+	
+
+endmodule
