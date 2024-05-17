@@ -1,5 +1,4 @@
 
-
 // Includes required files for Cadence Virtuoso
 `include "constants.vams"
 `include "disciplines.vams"
@@ -11,18 +10,18 @@
 	-------------------------------------------------
 */
 // Declare test signal generator module
-module lab4_8_write_driver_sigGen(D_IN, WE, CLK);
+module lab4_8_sense_amp_sigGen(BIT, BIT_L,CLK);
 
 // Declare outputs
 output CLK;
 // Declare 8-bit outputs from MSB-LSB ordering
-output[7:0] D_IN;
-output WE;
+output[7:0] BIT;
+output[7:0] BIT_L;
 
 // Specify desired output type to be a continuous voltage signal
 voltage CLK;
-voltage[7:0] D_IN;
-voltage WE;
+voltage[7:0] BIT;
+voltage[7:0] BIT_L;
 
 // Declare locally-scoped constants using localparam keyword
 // Clock period for test cases
@@ -53,8 +52,8 @@ parameter real	v_low = 0.0;
 
 // Initialize integer variables for signal generator outputs
 // A, B, Cin are inputs to the N-bit adder
-integer[7:0] 		D_IN_curr;
-integer 		WE_curr;
+integer 		BIT_curr;
+integer 		BIT_L_curr;
 
 // Keeps track of how many testcases have completed
 integer			curTestCount = 0;
@@ -63,8 +62,6 @@ integer			curTestCount = 0;
 integer			tb2Count = 0;
 integer			tb3Count = 0;
 integer			tb4Count = 1;
-integer			tb5Count = 1;
-integer			tb6Count = 1;
 
 // Initialize counters to be used in for-loop
 // Cannot use integers as the for-loop used is a "generator construct"
@@ -76,8 +73,8 @@ analog begin
 
 	// Initialize signal generator output values
 	@(initial_step) begin
-		D_IN_curr = 0;
-		WE_curr = 0;
+		BIT_curr = 0;
+		BIT_L_curr = 0;
 	end
 
 /*
@@ -112,35 +109,29 @@ analog begin
 	// Testsuite 1
 		curTestCount = curTestCount + 1;
 		if (curTestCount <= tb1) begin
-			D_IN_curr = 8'b1;
-            WE_curr = 1;
+			BIT_curr = 0;
+			BIT_L_curr = 0;
 		end
 
 	// Testsuite 2
 		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
-			D_IN_curr = 8'd30;
-            WE_curr = 0;
+			BIT_curr = 255;
+			BIT_L_curr = 0;
 			tb2Count  = tb2Count + 1;
 		end
 
 	// Testsuite 3
 		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
-			D_IN_curr = 8'd100;
-            WE_curr = 1;
+			BIT_curr = 8;
+			BIT_L_curr = 248;
 			tb3Count  = tb3Count + 1;
 		end
 
 	// Testsuite 4
 		if (tb1 + tb2 + tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
-			D_IN_curr = 8'd256;
-            WE_curr = 0;
+			BIT_curr = 0;
+			BIT_L_curr = 255;
 			tb4Count  = tb4Count + 1;
-		end
-    // Testsuite 5
-        if (tb1 + tb2 + tb3 + tb4 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4 + tb5) begin
-            D_IN_curr = 8'd256;
-            WE_curr = 1;
-			tb5Count = tb5Count+1;
 		end
 	end
 
@@ -148,10 +139,9 @@ analog begin
 	// Parse integer testcase inputs into binary,
 	// write resultant binary to N-bit output pins
 	for (j = 0; j < 8; j = j + 1) begin
-		V(D_IN[j])	 <+ transition(D_IN_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+		V(BIT[j])	 <+ transition(BIT_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+		V(BIT_L[j])	 <+ transition(BIT_L_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
 	end
-	V(WE) <+ transition(WE_curr ? v_high : v_low, 0, trise, tfall);
-
-end
+	
 
 endmodule
