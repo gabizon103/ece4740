@@ -17,8 +17,8 @@ voltage [`ADDRESS_BITS-1:0] addr;
 voltage clk;
 voltage en;
 
-localparam cp = 4000p;
-localparam cp2 = 2000p;
+localparam cp = 6000p;
+localparam cp2 = 3000p;
 
 // 64 tests in the testbench
 localparam tb = 64;

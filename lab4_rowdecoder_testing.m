@@ -2,14 +2,13 @@
 addpath('/opt/cadence/INNOVUS201/tools.lnx86/spectre/matlab/64bit');
 
 % directory that contains the simulation outputs
-directory = sprintf('%s/Cadence/ece4740/%s.psf', getenv('HOME'), '6_64_decoder_signals');
+directory = sprintf('%s/Cadence/ece4740/%s.psf', getenv('HOME'), '6_64_decoder_signals_extracted');
 
 % set up basic parameters
 Vdd = 1.2; % define vdd
 addrBits = 6;
 outBits = 64;
 nTestBenches = 1;
-%nTestCases = 8; % 2 for testing
 nTestCases = 64;
 startDelay = 1000;
 
@@ -19,8 +18,6 @@ period_clk = 4000; % CLK
 
 % get input signals
 addr_0 = cds_srr(directory, 'tran-tran', '/addr_in<0>', 0);
-
-% extract en voltage
 
 % convert time into ps
 % t_ps is an array of times that has now been normalized
@@ -49,18 +46,10 @@ for i = 1:addrBits
 end
 
 % Expected output
-% exp_y_vec = zeros(size(s_vec));
-% exp_cout_vec = zeros(size(s_vec, 1));
-% sample_wvf = zeros(size(s_vec));decimal_cin = (cin > Vdd/2);
-
-% we sample the inputs from FF at the middle of a cycle
-%t_ps_sample_in = startDelay + period_a/2 + (0:nTestCases)*period_a;
 t_ps_sample_in = startDelay + period_clk/2 + (0:nTestCases)*period_clk;
 
 % we sample the outputs midway after an input changes (each 2000ps),
 t_ps_sample_out = startDelay + period_clk*0.75 + (0:nTestCases)*period_clk;
-
-%% adder output
 
 % Convert the analog output into digital signals and then into decimal numbers in an array
 digital_addr = (addr_vec > Vdd/2);
@@ -79,7 +68,6 @@ exp_decoder_output = zeros(nTestCases);
 err_flag = 0;
 for i=1:nTestCases
     % find t_ps closest (from the right) to the t_ps_sample_in and _out
-%     What does this do?
 %     t_ps_idx_in get the first index corresponding to \geq sample time
     t_ps_idx_in  = find(t_ps-t_ps_sample_in(i)>=0,1);
 %     t_ps_idx_out get the first actual recorded output time that is more than the sample time

@@ -65,9 +65,10 @@ analog begin
 
     @(timer(0.5n,clk_period)) begin
         // begin test case defn
-      
-        en_cur = 1;
-		addr_cur = cur_test_count;
+        if (cur_test_count <= tb) begin
+        		en_cur = 1;
+			addr_cur = cur_test_count;
+		end
 		cur_test_count = cur_test_count + 1;
     end
 	

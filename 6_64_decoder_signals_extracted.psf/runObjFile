@@ -1,0 +1,20 @@
+HEADER
+"PSFversion" "1.00"
+"Run Generator" "drlRun rev. 1.0"
+"Run Time Stamp" "Thu May 16 16:37:30 2024"
+"date" "Thu May 16 16:37:30 2024"
+TYPE
+"runObject" STRUCT(
+"logName" ARRAY( * ) STRING *
+"parent" STRING *
+"sweepVariable" ARRAY( * ) STRING *
+) PROP( "key" "runObject" )
+VALUE
+"run1" "runObject" (
+(
+"logFile"
+)
+""
+()
+)
+END
