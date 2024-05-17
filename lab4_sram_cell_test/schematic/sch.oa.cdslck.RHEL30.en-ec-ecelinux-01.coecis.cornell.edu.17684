@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      dl634
+HostName                       en-ec-ecelinux-01.coecis.cornell.edu
+ProcessIdentifier              17684
+ProcessCreationTime_UTC        1715966341
+ProcessCreationTime_Readable   Fri May 17 13:19:01 2024 EDT
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/dl634/Cadence/ece4740/lab4_sram_cell_test/schematic/sch.oa.cdslck
+TimeEditLocked                 Fri May 17 13:19:10 2024 EDT

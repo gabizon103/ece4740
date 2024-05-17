@@ -1,0 +1,96 @@
+// VerilogA for ece4740, lab4_sram_cell_gen, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module lab4_sram_test_gen(word, we, d);
+
+output word, we, d;
+voltage word, we, d;
+
+parameter real v_high = 1.2;
+parameter real v_low = 0.0;
+
+parameter real trise = 20p from [0:inf];
+parameter real tfall = 20p from [0:inf];
+
+// Clock period for test cases
+localparam cp = 4000p;
+
+// Number of testcases per testsuite
+localparam tb1 = 2;
+localparam tb2 = 2;
+localparam tb3 = 2;
+localparam tb4 = 2;
+
+// Constants for clock periods
+parameter real	clk_period = cp from (0:inf);
+
+// int vars for sig gen outputs
+integer word_curr, we_curr, d_curr;
+
+integer curTestCount = 0;
+
+
+analog begin
+
+	// Initialize signal generator output values
+	@(initial_step) begin
+		word_curr = 0;
+		we_curr = 0;
+		d_curr = 0;
+	end
+	
+	// Timer block to run testcases
+	@(timer(0.5n, clk_period)) begin
+
+		// Testsuite 1: Write 1
+		curTestCount = curTestCount + 1;
+		if (curTestCount <= tb1) begin
+			word_curr = 0;
+			we_curr = 1;
+			d_curr = 1;
+			if(curTestCount == tb1) begin
+				word_curr = 1;
+			end
+		end
+
+		// Testsuite 2: Read 1
+		if (tb1 < curTestCount && curTestCount <= tb1 + tb2) begin
+			word_curr = 0;
+			we_curr = 0;
+			if(curTestCount == tb1 + tb2) begin
+				word_curr = 1;
+			end
+		end
+
+		// Testsuite 3: Write 0
+		if (tb1 + tb2 < curTestCount && curTestCount <= tb1 + tb2 + tb3) begin
+			word_curr = 0;
+			we_curr = 1;
+			d_curr = 0;
+			if(curTestCount == tb1 + tb2 + tb3) begin
+				word_curr = 1;
+			end
+		end
+
+		// Testsuite 4: Read 0
+		if (tb1 + tb2 +tb3 < curTestCount && curTestCount <= tb1 + tb2 + tb3 + tb4) begin
+			word_curr = 0;
+			we_curr = 0;
+			d_curr = 1;
+			if(curTestCount == tb1 + 1) begin
+				word_curr = 1;
+			end
+		end
+
+	end
+	
+	// Set outputs
+	V(word) <+ transition(word_curr ? v_high : v_low, trise, tfall);
+	V(we) <+ transition(we_curr ? v_high : v_low, trise, tfall);
+	V(d) <+ transition(d_curr ? v_high : v_low, trise, tfall);
+
+end
+
+endmodule
