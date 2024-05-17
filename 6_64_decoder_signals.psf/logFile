@@ -1,0 +1,25 @@
+HEADER
+"PSFversion" "1.00"
+"Log Generator" "drlLog rev. 1.0"
+"Log Time Stamp" "Wed May 15 16:54:45 2024"
+"simulator" "spectre"
+"date" "Wed May 15 16:54:45 2024"
+TYPE
+"analysisInst" STRUCT(
+"analysisType" STRING *
+"dataFile" STRING *
+"format" STRING *
+"parent" STRING *
+"sweepVariable" ARRAY ( * ) STRING *
+"description" STRING *
+)
+VALUE
+"tran-tran" "analysisInst" (
+"tran"
+"tran.tran"
+"PSF"
+""
+("time")
+"Transient Analysis"
+)
+END

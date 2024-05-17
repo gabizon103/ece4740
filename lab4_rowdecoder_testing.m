@@ -1,60 +1,105 @@
-%% Before running, set up the testbench cell name on line 8
-% your decoder outputs should be labeled as Y0,Y1,Y2,Y3, ..., Y63
-% your decoder inputs should be labeled as A5, A4, A3, A2, A1, A0
-%
-
-% set up the name of your testbench cell
-tb_name = 'testbench_directory';
-
 % set up cds_srr function
 addpath('/opt/cadence/INNOVUS201/tools.lnx86/spectre/matlab/64bit');
 
 % directory that contains the simulation outputs
-directory = sprintf('%s/Cadence/%s.psf', getenv('HOME'), tb_name);
+directory = sprintf('%s/Cadence/ece4740/%s.psf', getenv('HOME'), '6_64_decoder_signals_extracted');
 
 % set up basic parameters
 Vdd = 1.2; % define vdd
+addrBits = 6;
+outBits = 64;
+nTestBenches = 1;
+nTestCases = 64;
+startDelay = 1000;
 
 % define period (in ps)
-period_a = 1000; % A
-period_b =  500; % B
+period_a = 4000; % A
+period_clk = 4000; % CLK
 
 % get input signals
-a = cds_srr(directory, 'tran-tran', '/A', 0);
-b = cds_srr(directory, 'tran-tran', '/B', 0);
+addr_0 = cds_srr(directory, 'tran-tran', '/addr_in<0>', 0);
 
 % convert time into ps
-t_ps = a.time*1e12;
+% t_ps is an array of times that has now been normalized
+t_ps = addr_0.time*1e12;
 
-% extract voltages of signals
-a = a.V;
-b = b.V;
 
 % get output signals and put them together in a table where the i-th
 % column corresponds to the 'Y(i-1)' output
-y_mtx = [];
-for i=1:4
-    signal_name = ['/Y',int2str(i-1)];
-    y = cds_srr(directory, 'tran-tran', signal_name, 0);
-    y_mtx = [y_mtx y.V];
+y_vec = [];
+addr_vec = [];
+for i=1:outBits
+%   Concatenate the name to access the right Y(i-1) output
+    signal_name_y = ['/Y<', int2str(i-1), '>'];
+    y = cds_srr(directory, 'tran-tran', signal_name_y, 0);
+%   Append voltages to form y_mtx with [Y63 .. Y0]
+    y_vec = [y.V y_vec];
 end
 
-exp_y_mtx = zeros(size(y_mtx));
-sample_wvf = zeros(size(y_mtx));
-mydecoder_output = zeros(4,4);
-exp_decoder_output = zeros(4,4);
+for i = 1:addrBits
+%   Do the same for input vector A across all 8 bits
+    signal_name_addr = ['/addr_in<', int2str(i-1), '>'];
+    addr = cds_srr(directory, 'tran-tran', signal_name_addr, 0);
+%     Append to form [A7 .. A0]
+    addr_vec = [addr.V addr_vec];
 
-% we sample the inputs at the middle of a cycle
-t_ps_sample_in = 6*period_a + period_b/2 + (0:3)*period_b;
+end
 
-% we sample the outputs 230ps after an input changes (each 500ps),
-% during the fourth time the inputs repeat
-t_ps_sample_out = 6*period_a + 10 + 230 + (0:3)*period_b;
+% Expected output
+t_ps_sample_in = startDelay + period_clk/2 + (0:nTestCases)*period_clk;
 
-%% decoder output
+% we sample the outputs midway after an input changes (each 2000ps),
+t_ps_sample_out = startDelay + period_clk*0.75 + (0:nTestCases)*period_clk;
 
-% create base for expected output waveform
-a_bits = (a > Vdd/2);
-b_bits = (b > Vdd/2);
-vec_bits = [a_bits b_bits];
-exp_dec = bi2de(vec_bits,'left-msb');
+% Convert the analog output into digital signals and then into decimal numbers in an array
+digital_addr = (addr_vec > Vdd/2);
+decimal_addr = bi2de(digital_addr, 'left-msb');
+digital_y = (y_vec > Vdd/2);
+decimal_y = bi2de(digital_y, 'left-msb');
+
+exp_decimal_y = pow2(decimal_addr);
+
+% Actual output
+decoder_output = zeros(nTestCases);
+% Expected decoder output
+exp_decoder_output = zeros(nTestCases);
+
+%Check each one of the sampling points
+err_flag = 0;
+for i=1:nTestCases
+    % find t_ps closest (from the right) to the t_ps_sample_in and _out
+%     t_ps_idx_in get the first index corresponding to \geq sample time
+    t_ps_idx_in  = find(t_ps-t_ps_sample_in(i)>=0,1);
+%     t_ps_idx_out get the first actual recorded output time that is more than the sample time
+    t_ps_idx_out = find(t_ps-t_ps_sample_out(i)>=0,1);
+    
+    % measure the outputs and declare 1 if it is greater than Vdd/2    
+    decoder_output(i) = decimal_y(t_ps_idx_out);
+    exp_decoder_output(i) = exp_decimal_y(t_ps_idx_out);
+
+    if (sum(exp_decoder_output(i,:) ~= decoder_output(i,:)) > 0)
+        disp(['Test ' num2str(i)...
+            '/' num2str(nTestCases) ...
+            ' WRONG -------'...
+            'Expected output for input '...
+            'addr=' num2str(decimal_addr(t_ps_idx_in)) ...  
+            ' is y=' num2str(exp_decoder_output(i)) ...
+            ' but measured output is y=' num2str(decoder_output(i))...
+            ]) 
+        err_flag  = err_flag + 1;
+    else
+        disp(['Test ' num2str(i)...
+            '/' num2str(nTestCases) ...
+            ' CORRECT -------'...
+            'Expected output for input '...
+            'addr=' num2str(decimal_addr(t_ps_idx_in)) ... 
+            ' is y=' num2str(exp_decoder_output(i)) ...
+            ' Measured output'...
+            ' y=' num2str(decoder_output(i))...
+            ]) 
+    end
+end
+disp(['Correct cases: ' num2str(nTestCases - err_flag) '/' num2str(nTestCases)]);
+if err_flag == 0
+    disp('The decoder circuit has no errors :)')
+end
