@@ -14,13 +14,12 @@ nTestCases = 2 + 2 + 2 + 2;
 startDelay = 1000;
 
 % define period (in ps)
-period_a = 4000; % A
 period_clk = 4000; % CLK
 
 % get input signals
-a_0 = cds_srr(directory, 'tran-tran', '/OutA<0>', 0);
-cin = cds_srr(directory, 'tran-tran', '/OutC', 0);
-cout = cds_srr(directory, 'tran-tran', '/Cout_2', 0);
+bit = cds_srr(directory, 'tran-tran', '', 0);
+bit_b = cds_srr(directory, 'tran-tran', '', 0);
+cout = cds_srr(directory, 'tran-tran', '', 0);
 % Extract voltage for Cin
 cin =  cin.V;
 cout = cout.V;
