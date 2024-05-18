@@ -4,13 +4,13 @@
 # Information about current Edit Lock Owner.
 #
 LockStakeVersion               1.1
-LoginName                      nn234
+LoginName                      dl634
 HostName                       en-ec-ecelinux-01.coecis.cornell.edu
-ProcessIdentifier              14545
-ProcessCreationTime_UTC        1715956180
-ProcessCreationTime_Readable   Fri May 17 10:29:40 2024 EDT
+ProcessIdentifier              57858
+ProcessCreationTime_UTC        1716046231
+ProcessCreationTime_Readable   Sat May 18 11:30:31 2024 EDT
 AppIdentifier                  OA File System Design Manager
 OSType                         unix
 ReasonForPlacingEditLock       OpenAccess edit lock
-FilePathUsedToEditLock         /home/nn234/Cadence/ece4740/lab4_write_driver/schematic/sch.oa.cdslck
-TimeEditLocked                 Fri May 17 11:37:46 2024 EDT
+FilePathUsedToEditLock         /home/dl634/Cadence/ece4740/lab4_sram_cell_test/schematic/sch.oa.cdslck.dirlck
+TimeEditLocked                 Sat May 18 12:09:39 2024 EDT
