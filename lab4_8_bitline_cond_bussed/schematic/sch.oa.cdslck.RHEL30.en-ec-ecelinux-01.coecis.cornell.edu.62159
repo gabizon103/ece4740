@@ -6,11 +6,11 @@
 LockStakeVersion               1.1
 LoginName                      nn234
 HostName                       en-ec-ecelinux-01.coecis.cornell.edu
-ProcessIdentifier              14545
-ProcessCreationTime_UTC        1715956180
-ProcessCreationTime_Readable   Fri May 17 10:29:40 2024 EDT
+ProcessIdentifier              62159
+ProcessCreationTime_UTC        1716005784
+ProcessCreationTime_Readable   Sat May 18 00:16:24 2024 EDT
 AppIdentifier                  OA File System Design Manager
 OSType                         unix
 ReasonForPlacingEditLock       OpenAccess edit lock
-FilePathUsedToEditLock         /home/nn234/Cadence/ece4740/lab4_8_write_driver/layout/layout.oa.cdslck
-TimeEditLocked                 Fri May 17 17:56:31 2024 EDT
+FilePathUsedToEditLock         /home/nn234/Cadence/ece4740/lab4_8_bitline_cond_bussed/schematic/sch.oa.cdslck
+TimeEditLocked                 Sat May 18 00:16:53 2024 EDT
