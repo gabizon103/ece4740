@@ -1,0 +1,57 @@
+#
+# OPTION COMMAND FILE created by Cadence Quantus Extraction Version 20.1.2-p025 from CCL
+#
+capacitance \
+	 -decoupling_factor 1.0 \
+	 -ground_net "gnd!"
+device_reduction \
+	 -m_factor infinite
+extract \
+	 -selection "all" \
+	 -type "rc_coupled"
+extraction_setup \
+	 -array_vias_spacing "auto" \
+	 -macro_cells_type "default" \
+	 -max_fracture_length infinite \
+	 -max_fracture_length_unit "MICRONS" \
+	 -max_via_array_size \
+		"auto" \
+	 -net_name_space "LAYOUT"
+filter_cap \
+	 -exclude_self_cap "true"
+filter_coupling_cap \
+	 -coupling_cap_threshold_absolute 0.01 \
+	 -coupling_cap_threshold_relative 0.001
+filter_res \
+	 -merge_parallel_res false \
+	 -min_res 0.001
+input_db -type assura \
+	 -design_cell_name "lab4_sram_cell_array_64x64 layout ece4740" \
+	 -directory_name "/home/dl634/Cadence" \
+	 -format "DFII" \
+	 -run_name "lab4_sram_cell_array_64x64"
+log_file \
+	 -file_name "/home/dl634/Cadence/qrc.lab4_sram_cell_array_64x64.log"
+output_db -type extracted_view \
+	 -cap_component "pcapacitor" \
+	 -cap_property_name "c" \
+	 -enable_cellview_check true \
+	 -include_cap_model "false" \
+	 -include_parasitic_cap_model "false" \
+	 -include_parasitic_res_model "comment" \
+	 -include_res_model "false" \
+	 -res_component "presistor" \
+	 -res_property_name "r" \
+	 -view_name "av_extracted"
+output_setup \
+	 -directory_name "/home/dl634/Cadence" \
+	 -temporary_directory_name "lab4_sram_cell_array_64x64"
+process_technology \
+	 -technology_corner \
+		"default" \
+	 -technology_library_file "/opt/cadence-designkits/gpdk090_v4.6/assura_tech.lib" \
+	 -technology_name "gpdk090" \
+	 -temperature \
+		25.0
+
+
