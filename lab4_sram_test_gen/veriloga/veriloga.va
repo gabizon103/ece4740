@@ -17,13 +17,13 @@ voltage[7:0] DATA;
 
 // Declare locally-scoped constants using localparam keyword
 // Clock period for test cases
-localparam cp = 8000p;
+localparam cp = 3000p;
 
 // Number of testcases per testsuite
-localparam tb1 = 64;
+localparam tb1 = 64 * 4;
 localparam tb2 = 2;
 
-integer tb1Count = 0;
+integer tbCount = 0;
 
 // Constants for clock periods
 parameter real	clk_period = cp from (0:inf);
@@ -62,53 +62,72 @@ analog begin
     @(timer(0.5n,clk_period)) begin
         curTestCount = curTestCount + 1;
 
-        // // Testsuite 1: Write checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
-        // if (curTestCount <= tb1) begin
-        //     if (tb1Count == 0) begin
-        //         ADDR_curr = ADDR_curr + 1;
-        //         DATA_curr = 8'hAA;
-        //         WE_curr = 1;
-        //         tb1Count = 1;
-        //     end
-        //     else if (tb1Count == 1) begin
-        //         ADDR_curr = ADDR_curr + 1;
-        //         DATA_curr = 8'h55;
-        //         WE_curr = 1;
-        //         tb1Count = 0;
-        //     end
-        // end
+        // Testsuite 1: Write checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
+        if (curTestCount <= tb1) begin
+            if (tbCount == 0) begin
+                DATA_curr = 8'hAA;
+                WE_curr = 1;
+                tbCount = 1;
+            end
+            else if (tbCount == 1) begin
+                ADDR_curr = ADDR_curr + 1;
+                tbCount = 2;
+            end
+            else if (tbCount == 2) begin
+                DATA_curr = 8'h55;
+                WE_curr = 1;
+                tbCount = 3;
+            end
+            else if (tbCount == 3) begin
+                ADDR_curr = ADDR_curr + 1;
+                tbCount = 0;
+            end
+        end
 
         // // Testsuite 2: Read checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
         // if (tb1 < curTestCount && curTestCount <= 2*tb1) begin
-        //     if (tb1Count == 0) begin
-        //         ADDR_curr = ADDR_curr + 1;
+        //     if (tbCount == tb1 + 1) ADDR_curr = 0;
+        //     if (tbCount == 0) begin
         //         DATA_curr = 8'hAA;
         //         WE_curr = 0;
-        //         tb1Count = 1;
+        //         tbCount = 1;
         //     end
-        //     else if (tb1Count == 1) begin
+        //     else if (tbCount == 1) begin
         //         ADDR_curr = ADDR_curr + 1;
+        //         tbCount = 2;
+        //     end
+        //     else if (tbCount == 2) begin
         //         DATA_curr = 8'h55;
         //         WE_curr = 0;
-        //         tb1Count = 0;
+        //         tbCount = 3;
+        //     end
+        //     else if (tbCount == 1) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         tbCount = 0;
         //     end
         // end
 
-        // Write address 0 (Row 1: 8b;10101010)
-        if (curTestCount == 1) begin
-            DATA_curr = 8'hAA;
-            WE_curr = 1;
-			
-        end
-		if (curTestCount == 2)             ADDR_curr = 4;
-
         // Read address 0 (Row 1: 8b;10101010)
-        if (curTestCount == 3) begin
+        if (curTestCount == tb1 + 1) begin
             DATA_curr = 0;
             WE_curr = 0;
-			
         end
-		if (curTestCount == 4) ADDR_curr = 4;
+		if (curTestCount == tb1 + 2) ADDR_curr = 0;
+
+        // Read address 3 (Row 1: 8b;01010101)
+        if (curTestCount == tb1 + 3) begin
+            DATA_curr = 0;
+            WE_curr = 0;
+        end
+		if (curTestCount == tb1 + 4) ADDR_curr = 3;
+
+        // Read address 54 (Row 1: 8b;10101010)
+        if (curTestCount == tb1 + 5) begin
+            DATA_curr = 0;
+            WE_curr = 0;
+        end
+		if (curTestCount == tb1 + 6) ADDR_curr = 3;
+
     end
 
 
