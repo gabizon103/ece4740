@@ -2,7 +2,7 @@
 addpath('/opt/cadence/INNOVUS201/tools.lnx86/spectre/matlab/64bit');
 
 % directory that contains the simulation outputs
-directory = sprintf('%s/Cadence/%s.psf', getenv('HOME'), '8_bit_adder_static_cmos');
+directory = 'lab4_8_write_driver.psf';
 
 % set up basic parameters
 Vdd = 1.2; % define vdd
@@ -10,7 +10,7 @@ numBits = 8;
 % numBits = 4;
 nTestBenches = 6;
 %nTestCases = 8; % 2 for testing
-nTestCases = 2 + 8 + 8 + 2 + 2 + 2;
+nTestCases = 12;
 startDelay = 1000;
 
 % define period (in ps)
@@ -18,16 +18,45 @@ period_a = 4000; % A
 period_clk = 4000; % CLK
 
 % get input signals
-a_0 = cds_srr(directory, 'tran-tran', '/OutA<0>', 0);
-cin = cds_srr(directory, 'tran-tran', '/OutC', 0);
-cout = cds_srr(directory, 'tran-tran', '/Cout_2', 0);
+bit_0 = cds_srr(directory, 'tran-tran', '/bit0', 0);
+bit0 = cds_srr(directory, 'tran-tran', '/bit0', 0);
+bit1 = cds_srr(directory, 'tran-tran', '/bit1', 0);
+bit2 = cds_srr(directory, 'tran-tran', '/bit2', 0);
+bit3 = cds_srr(directory, 'tran-tran', '/bit3', 0);
+bit4 = cds_srr(directory, 'tran-tran', '/bit4', 0);
+bit5 = cds_srr(directory, 'tran-tran', '/bit5', 0);
+bit6 = cds_srr(directory, 'tran-tran', '/bit6', 0);
+bit7 = cds_srr(directory, 'tran-tran', '/bit7', 0);
+bit0_b = cds_srr(directory, 'tran-tran', '/bit0_b', 0);
+bit1_b = cds_srr(directory, 'tran-tran', '/bit1_b', 0);
+bit2_b = cds_srr(directory, 'tran-tran', '/bit2_b', 0);
+bit3_b = cds_srr(directory, 'tran-tran', '/bit3_b', 0);
+bit4_b = cds_srr(directory, 'tran-tran', '/bit4_b', 0);
+bit5_b = cds_srr(directory, 'tran-tran', '/bit5_b', 0);
+bit6_b = cds_srr(directory, 'tran-tran', '/bit6_b', 0);
+bit7_b = cds_srr(directory, 'tran-tran', '/bit7_b', 0);
+we = cds_srr(directory, 'tran-tran', '/net1', 0);
 % Extract voltage for Cin
-cin =  cin.V;
-cout = cout.V;
-
+bit0 = bit0.V;
+bit0_b = bit0_b.V;
+bit1 = bit1.V;
+bit1_b = bit1_b.V;
+bit2 = bit2.V;
+bit2_b = bit2_b.V;
+bit3 = bit3.V;
+bit3_b = bit3_b.V;
+bit4 = bit4.V;
+bit4_b = bit4_b.V;
+bit5 = bit5.V;
+bit5_b = bit5_b.V;
+bit6 = bit6.V;
+bit6_b = bit6_b.V;
+bit7 = bit7.V;
+bit7_b = bit7_b.V;
+we = we.V;
 % convert time into ps
 % t_ps is an array of times that has now been normalized
-t_ps = a_0.time*1e12;
+t_ps = bit_0.time*1e12;
 
 % extract voltages of signals
 % a = a.V;
@@ -35,26 +64,18 @@ t_ps = a_0.time*1e12;
 
 % get output signals and put them together in a table where the i-th
 % column corresponds to the 'Y(i-1)' output
-s_vec = [];
-a_vec = [];
-b_vec = [];
+d_in_vec = [];
+bit_vec = [bit0 bit1 bit2 bit3 bit4 bit5 bit6 bit7];
+bit_b_vec = [bit0_b bit1_b bit2_b bit3_b bit4_b bit5_b bit6_b bit7_b];
+
 for i=1:numBits
-%   Concatenate the name to access the right Y(i-1) output
-    signal_name = ['/S_2<', int2str(i-1), '>'];
-    s = cds_srr(directory, 'tran-tran', signal_name, 0);
-%   Append voltages to form y_mtx with [Y7 .. Y0]
-    s_vec = [s.V s_vec];
 
 %   Do the same for input vector A across all 8 bits
-    signal_name_a = ['/OutA<', int2str(i-1), '>'];
-    a = cds_srr(directory, 'tran-tran', signal_name_a, 0);
+    signal_name = ['/D_IN<', int2str(i-1), '>'];
+    d_in = cds_srr(directory, 'tran-tran', signal_name, 0);
 %     Append to form [A7 .. A0]
-    a_vec = [a.V a_vec];
-
-%   Do the same for input vector B across all 8 bits
-    signal_name_b = ['/OutB<', int2str(i-1), '>'];
-    b = cds_srr(directory, 'tran-tran', signal_name_b, 0);
-    b_vec = [b.V b_vec];
+    d_in_vec = [d_in.V d_in_vec];
+    
 
 end
 
@@ -73,29 +94,25 @@ t_ps_sample_out = startDelay + period_clk*0.75 + (0:nTestCases)*period_clk;
 %% adder output
 
 % Convert the analog output into digital signals and then into decimal numbers in an array
-digital_a = (a_vec > Vdd/2);
-decimal_a = bi2de(digital_a,'left-msb');
-digital_b = (b_vec > Vdd/2);
-decimal_b = bi2de(digital_b,'left-msb');
-digital_s = (s_vec > Vdd/2);
-decimal_s = bi2de(digital_s,'left-msb');
+digital_d_in = (d_in_vec > Vdd/2);
+decimal_d_in = bi2de(digital_d_in,'left-msb');
 
-decimal_cin = (cin > Vdd/2);
-decimal_cout = (cout > Vdd/2);
-exp_decimal_s = decimal_a + decimal_b + decimal_cin;
-% NOTE THAT MATLAB TAKES THE LSB AS BIT 1, CARRY OUT BIT IS NUMBITS + 1
-exp_decimal_cout = bitget(exp_decimal_s, numBits+1);
-%remove carry out bit
-exp_decimal_s = bitset(exp_decimal_s, numBits+1, 0);
+digital_bit = (bit_vec > Vdd/2);
+decimal_bit = bi2de(digital_bit, 'left-msb');
+
+digital_bit_b = (bit_b_vec > Vdd/2);
+decimal_bit_b = bi2de(digital_bit_b, 'left-msb');
+
+digital_WE = (we > Vdd/2);
+decimal_WE = bi2de(digital_WE, 'left-msb');
+
 
 % Actual output
-myadder_output = zeros(nTestCases);
+mydriver_output = zeros(nTestCases);
 % Expected decoder output
-exp_adder_output = zeros(nTestCases);
+exp_driver_output = zeros(nTestCases);
 % Actual cout
-myadder_cout = zeros(nTestCases);
-% Expected decoder output
-exp_adder_cout = zeros(nTestCases);
+mydriver_WE = zeros(nTestCases);
 
 
 %Check each one of the sampling points
@@ -109,44 +126,38 @@ for i=1:nTestCases
     t_ps_idx_out = find(t_ps-t_ps_sample_out(i)>=0,1);
     
     % measure the outputs and declare 1 if it is greater than Vdd/2    
-    myadder_output(i) = decimal_s(t_ps_idx_out);
-    exp_adder_output(i) = exp_decimal_s(t_ps_idx_out);
+    mydriver_output(i) = digital_bit(t_ps_idx_out);
+    exp_driver_output(i) = digital_d_in(t_ps_idx_out);
     
-    myadder_cout(i) = decimal_cout(t_ps_idx_out);
-    exp_adder_cout(i) = exp_decimal_cout(t_ps_idx_out);
+    mydriver_WE(i) = digital_WE(t_ps_idx_out);
 
 
-    if (sum(exp_adder_cout(i) ~= myadder_cout(i)) > 0 || sum(exp_adder_output(i,:) ~= myadder_output(i,:)) > 0)
+    if ((exp_driver_output(i) ~= (mydriver_output(i)) | (exp_driver_output(i,:) ~= (mydriver_output(i,:)))) & mydriver_WE(i) & i>2)
         disp(['Test ' num2str(i)...
             '/' num2str(nTestCases) ...
             ' WRONG -------'...
             'Expected output for input '...
-            'A=' num2str(decimal_a(t_ps_idx_in)) ...
-            ' B=' num2str(decimal_b(t_ps_idx_in)) ...        
-            ' C=' num2str(decimal_cout(t_ps_idx_in))...
-            ' is s=' num2str(exp_adder_output(i)) ...
-            ' and cout=' num2str(exp_adder_cout(i)) ...
-            ' but measured output is s=' num2str(myadder_output(i))...
-            ' and cout=' num2str(myadder_cout(i))...
+            ' is bit=' num2str(exp_driver_output(i)) ...
+            ' and WE=' num2str(mydriver_WE(i)) ...
+            ' but measured output is bit=' num2str(mydriver_output(i))...
+            ' and WE=' num2str(mydriver_WE(i))...
             ]) 
         err_flag  = err_flag + 1;
     else
         disp(['Test ' num2str(i)...
             '/' num2str(nTestCases) ...
             ' CORRECT -------'...
-            'Expected output for input '...
-            'A=' num2str(decimal_a(t_ps_idx_in)) ...
-            ' B=' num2str(decimal_b(t_ps_idx_in)) ...        
-            ' C=' num2str(decimal_cout(t_ps_idx_in))...
-            ' is s=' num2str(exp_adder_output(i)) ...
-            ' and cout=' num2str(exp_adder_cout(i)) ...
+            'Expected output for input is'...
+            'bit=' num2str(decimal_bit(t_ps_idx_in)) ...
+            ' is D_in=' num2str(exp_driver_output(i)) ...
+            ' and WE=' num2str(mydriver_WE(i)) ...
             ' Measured output'...
-            ' s=' num2str(myadder_output(i))...
-            ' and cout=' num2str(myadder_cout(i))...
+            ' bit =' num2str(mydriver_output(i))...
+            ' and WE=' num2str(mydriver_WE(i))...
             ]) 
     end
 end
 disp(['Correct cases: ' num2str(nTestCases - err_flag) '/' num2str(nTestCases)]);
 if err_flag == 0
-    disp('The adder circuit has no errors :)')
+    disp('The driver circuit has no errors :)')
 end
