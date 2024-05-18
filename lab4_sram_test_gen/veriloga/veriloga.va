@@ -49,7 +49,7 @@ analog begin
     @(initial_step) begin
         ADDR_curr = 0;
         DATA_curr = 0;
-        WE_curr = 0;
+        WE_curr = 1;
     end
 
 /*
@@ -61,11 +61,11 @@ analog begin
     // Timer block to run testcases
     @(timer(0.5n,clk_period)) begin
         case (curTestCount)
-            0: begin DATA_curr = 8'h55; WE_curr = 1; end // write
+            0: begin DATA_curr = 8'hAA; WE_curr = 1; end // write
             1: begin ADDR_curr = 4; end
             2: begin DATA_curr = 8'h55; WE_curr = 1; end
             3: begin ADDR_curr = 2; end
-            4: begin DATA_curr = 8'h55; WE_curr = 0; end
+            4: begin DATA_curr = 8'hAA; WE_curr = 0; end
             5: begin ADDR_curr = 4; end
             6: begin DATA_curr = 8'h55; WE_curr = 0; end
             7: begin ADDR_curr = 2; end
@@ -108,20 +108,20 @@ analog begin
         // end
 
         // Write address 0 (Row 1: 8b;10101010)
-        if (curTestCount == 1) begin
-            DATA_curr = 8'hAA;
-            WE_curr = 1;
-			
-        end
-		if (curTestCount == 2)             ADDR_curr = 4;
+       // if (curTestCount == 1) begin
+        //    DATA_curr = 8'hAA;
+         //   WE_curr = 1;
+		//	
+        //end
+	//	if (curTestCount == 2)             ADDR_curr = 4;
 
         // Read address 0 (Row 1: 8b;10101010)
-        if (curTestCount == 3) begin
-            DATA_curr = 0;
-            WE_curr = 0;
+       // if (curTestCount == 3) begin
+        //    DATA_curr = 0;
+        //    WE_curr = 0;
 			
-        end
-		if (curTestCount == 4) ADDR_curr = 4;
+        //end
+		//if (curTestCount == 4) ADDR_curr = 4;
     end
 
 

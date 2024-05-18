@@ -17,14 +17,13 @@ voltage[7:0] DATA;
 
 // Declare locally-scoped constants using localparam keyword
 // Clock period for test cases
-localparam cp = 4000p;
+localparam cp = 8000p;
 
 // Number of testcases per testsuite
-localparam tb1 = 128;
+localparam tb1 = 64;
+localparam tb2 = 2;
 
 integer tb1Count = 0;
-integer addrCount = 0;
-integer writeAA = 1;
 
 // Constants for clock periods
 parameter real	clk_period = cp from (0:inf);
@@ -60,53 +59,69 @@ analog begin
 */
 
     // Timer block to run testcases
-    @(timer(0.5n,clk_period)) begin
+    @(timer(20n,clk_period)) begin
         case (curTestCount)
-            0: begin DATA_curr = 8'hAA; WE_curr = 1; ADDR_curr = 1; end
-            1: begin ADDR_curr = 1; end
-            2: begin DATA_curr = 8'h55; WE_curr = 1; ADDR_curr = 2; end
+            0: begin DATA_curr = 8'hAA; WE_curr = 1; end // write
+            1: begin ADDR_curr = 4; end
+            2: begin DATA_curr = 8'h55; WE_curr = 1; end
             3: begin ADDR_curr = 2; end
-            4: begin DATA_curr = 8'h55; WE_curr = 0; ADDR_curr = 1; end
-            5: begin ADDR_curr = 1; END
-            6: begin DATA_curr = 8'h55; WE_curr = 0; ADDR_curr = 2; end
+            4: begin DATA_curr = 8'hAA; WE_curr = 0; end
+            5: begin ADDR_curr = 4; end
+            6: begin DATA_curr = 8'h55; WE_curr = 0; end
             7: begin ADDR_curr = 2; end
+            8: begin WE_curr = 0; DATA_curr = 1; end
+            9: begin ADDR_curr = 4; end
             
         endcase
         curTestCount = curTestCount + 1;
-        // if (addrCount == 63) begin addrCount = 0; end
 
-        // if (curTestCount < 128) begin
-        //     if ((curTestCount & 1) == 1) begin
-        //         ADDR_curr = addrCount;
-        //         addrCount = addrCount+1;
-        //     end else begin
-        //     if (((curTestCount >> 1) & 1) == 1) begin
-        //         ADDR_curr = 0;
-        //         DATA_curr = 8'h55;
-        //         WE_curr = 1;
-        //     end else begin
-        //         ADDR_curr = 0;
+        // // Testsuite 1: Write checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
+        // if (curTestCount <= tb1) begin
+        //     if (tb1Count == 0) begin
+        //         ADDR_curr = ADDR_curr + 1;
         //         DATA_curr = 8'hAA;
         //         WE_curr = 1;
+        //         tb1Count = 1;
+        //     end
+        //     else if (tb1Count == 1) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'h55;
+        //         WE_curr = 1;
+        //         tb1Count = 0;
         //     end
         // end
 
-        // end else if (curTestCount >= 128 && curTestCount < 256) begin
-        //     WE_curr = 0;
-        //     if ((curTestCount & 1) == 1) begin
-        //         ADDR_curr = addrCount;
-        //         addrCount = addrCount+1;
-        //     end else begin
-        //     if ((((curTestCount) >> 1) & 1) == 1) begin
-        //         ADDR_curr = 0;
+        // // Testsuite 2: Read checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
+        // if (tb1 < curTestCount && curTestCount <= 2*tb1) begin
+        //     if (tb1Count == 0) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'hAA;
         //         WE_curr = 0;
-        //     end else begin
-        //         ADDR_curr = 0;
+        //         tb1Count = 1;
+        //     end
+        //     else if (tb1Count == 1) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'h55;
         //         WE_curr = 0;
+        //         tb1Count = 0;
         //     end
         // end
-        // end
-        // curTestCount = curTestCount + 1;
+
+        // Write address 0 (Row 1: 8b;10101010)
+       // if (curTestCount == 1) begin
+        //    DATA_curr = 8'hAA;
+         //   WE_curr = 1;
+		//	
+        //end
+	//	if (curTestCount == 2)             ADDR_curr = 4;
+
+        // Read address 0 (Row 1: 8b;10101010)
+       // if (curTestCount == 3) begin
+        //    DATA_curr = 0;
+        //    WE_curr = 0;
+			
+        //end
+		//if (curTestCount == 4) ADDR_curr = 4;
     end
 
 
