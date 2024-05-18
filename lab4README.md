@@ -23,12 +23,17 @@ navigate to Axis -> Y vs Y. In the trace dropdown, select `/q` and select New Wi
 With this plot still open, open `lab4_snm2`, launch ADE L, and load state `spectre_state1` from the cellview. Run the DC simulation,
 navigate to Axis -> Y vs Y, select `/q`, and select New Window. Drag this plot into the window of the plot generated from `lab4_snm`. It
 should look like this:
+![snm plot](snm_plot.png)
+which gives us a static noise margin of about 250 mV.
 
 
 #### (b) Read margin
 Open `lab4_readmarg` and `lab4_readmarg2`, following all of the same steps as in (a). The plot should look like this:
+![read margin plot](readmargin.png)
+which gives us a read margin of about 25 mV.
 
 #### (c) Write margin
 Open `lab4_writemarg` and `lab4_writemarg2`, following all of the same steps as in (a). The plot should look like this:
-
+![write margin plot](writemargin.png)
+which gives us a write margin of about 250 mV.
 
