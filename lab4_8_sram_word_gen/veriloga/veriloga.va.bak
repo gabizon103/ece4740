@@ -47,7 +47,7 @@ parameter real	trise = 20p from [0:inf];
 parameter real	tfall = 20p from [0:inf];
 
 // Constants for voltage signal bounds
-parameter real	v_high = 1.2;
+parameter real	v_high = 5;
 parameter real	v_low = 0.0;
 
 // Initialize integer variables for signal generator outputs
@@ -138,7 +138,7 @@ analog begin
 	// Parse integer testcase inputs into binary,
 	// write resultant binary to N-bit output pins
 	for (j = 0; j < 8; j = j + 1) begin
-		V(D_IN[7-j])	 <+ transition(D_IN_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+		V(D_IN[j])	 <+ transition(D_IN_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
 	end
 	V(WE) <+ transition(WE_curr ? v_high : v_low, 0, trise, tfall);
 	V(word) <+ transition(word_curr ? v_high : v_low, 0, trise, tfall);
