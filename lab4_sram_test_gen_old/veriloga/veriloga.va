@@ -1,0 +1,128 @@
+// VerilogA for ece4740, lab4_sram_test_gen, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module lab4_sram_test_gen_old(ADDR, DATA, WE);
+
+// Declare outputs
+output WE;
+
+output[5:0] ADDR;
+output[7:0] DATA;
+
+voltage WE;
+voltage[5:0] ADDR;
+voltage[7:0] DATA;
+
+// Declare locally-scoped constants using localparam keyword
+// Clock period for test cases
+localparam cp = 8000p;
+
+// Number of testcases per testsuite
+localparam tb1 = 64;
+localparam tb2 = 2;
+
+integer tb1Count = 0;
+
+// Constants for clock periods
+parameter real	clk_period = cp from (0:inf);
+parameter real	trise = 20p from [0:inf];
+parameter real	tfall = 20p from [0:inf];
+
+// Constants for voltage signal bounds
+parameter real	v_high = 1.2;
+parameter real	v_low = 0.0;
+
+// Initialize integer variables for signal generator outputs
+integer 		ADDR_curr;
+integer 		DATA_curr;
+integer 		WE_curr;
+
+// Keeps track of how many testcases have completed
+integer			curTestCount = 0;
+
+genvar			j;
+
+analog begin
+
+    @(initial_step) begin
+        ADDR_curr = 0;
+        DATA_curr = 0;
+        WE_curr = 0;
+    end
+
+/*
+ 	-------------------------------------------------
+				TESTCASE DEFINITIONS
+	-------------------------------------------------
+*/
+
+    // Timer block to run testcases
+    @(timer(0.5n,clk_period)) begin
+        curTestCount = curTestCount + 1;
+
+        // // Testsuite 1: Write checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
+        // if (curTestCount <= tb1) begin
+        //     if (tb1Count == 0) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'hAA;
+        //         WE_curr = 1;
+        //         tb1Count = 1;
+        //     end
+        //     else if (tb1Count == 1) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'h55;
+        //         WE_curr = 1;
+        //         tb1Count = 0;
+        //     end
+        // end
+
+        // // Testsuite 2: Read checkerboard pattern (Row 1: 8b'10101010, Row 2: 8b'01010101)
+        // if (tb1 < curTestCount && curTestCount <= 2*tb1) begin
+        //     if (tb1Count == 0) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'hAA;
+        //         WE_curr = 0;
+        //         tb1Count = 1;
+        //     end
+        //     else if (tb1Count == 1) begin
+        //         ADDR_curr = ADDR_curr + 1;
+        //         DATA_curr = 8'h55;
+        //         WE_curr = 0;
+        //         tb1Count = 0;
+        //     end
+        // end
+
+        // Write address 0 (Row 1: 8b;10101010)
+        if (curTestCount == 1) begin
+            DATA_curr = 8'hAA;
+            WE_curr = 1;
+			
+        end
+		if (curTestCount == 2)             ADDR_curr = 4;
+
+        // Read address 0 (Row 1: 8b;10101010)
+        if (curTestCount == 3) begin
+            DATA_curr = 0;
+            WE_curr = 0;
+			
+        end
+		if (curTestCount == 4) ADDR_curr = 4;
+    end
+
+
+    // Parse integer case inputs into binary and assert them
+    for (j = 0; j < 8; j = j + 1) begin
+		V(DATA[j]) <+ transition(DATA_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+	end
+    
+    for (j = 0; j < 6; j = j + 1) begin
+		V(ADDR[j]) <+ transition(ADDR_curr & (1 << j) ? v_high : v_low, 0, trise, tfall);
+	end
+
+	V(WE) <+ transition(WE_curr ? v_high : v_low, 0, trise, tfall);
+
+end
+
+endmodule
