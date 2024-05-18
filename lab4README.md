@@ -37,3 +37,10 @@ Open `lab4_writemarg` and `lab4_writemarg2`, following all of the same steps as 
 ![write margin plot](writemargin.png)
 which gives us a write margin of about 250 mV.
 
+### 3. Effect of Vdd scaling on read delay
+We performed a quantitative analysis using the cell `lab4_sram_word_scaling` to determine the effect of Vdd scaling on 
+read delay. We defined read delay to be the time between a wordline being asserted on a read and the bitline switching.
+We were unable to perform a parametric sweep as we intended for this analysis, because our `veriloga` signal generator cell,
+`lab4_8_sram_word_gen` is also responsible for setting the Vdd used for the simulation, which is not in scope as a design
+variable for parametric sweeps. Using our data points, we compiled the following plot.
+

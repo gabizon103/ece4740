@@ -47,7 +47,7 @@ parameter real	trise = 20p from [0:inf];
 parameter real	tfall = 20p from [0:inf];
 
 // Constants for voltage signal bounds
-parameter real	v_high = 1.2;
+parameter real	v_high = 4.0;
 parameter real	v_low = 0.0;
 
 // Initialize integer variables for signal generator outputs
