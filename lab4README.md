@@ -43,4 +43,9 @@ read delay. We defined read delay to be the time between a wordline being assert
 We were unable to perform a parametric sweep as we intended for this analysis, because our `veriloga` signal generator cell,
 `lab4_8_sram_word_gen` is also responsible for setting the Vdd used for the simulation, which is not in scope as a design
 variable for parametric sweeps. Using our data points, we compiled the following plot.
+![vdd scaling plot](scaling_plot.png)
 
+As shown, the minimum delay occurs somewhere between around Vdd = 4V. Vdd = 4V gives a read delay of 2.89 ps, down from
+the delay of 8.61 ps that Vdd = 1.2V gives. However, dynamic power consumption is proportional to the square of Vdd,
+which means that making this change in Vdd of about 3x would cause a 9x increase in dynamic power consumption. This may
+be worth it depending on the application, but it is possible that is tradeoff is not worth it. 
