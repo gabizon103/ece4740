@@ -49,3 +49,9 @@ As shown, the minimum delay occurs somewhere between around Vdd = 4V. Vdd = 4V g
 the delay of 8.61 ps that Vdd = 1.2V gives. However, dynamic power consumption is proportional to the square of Vdd,
 which means that making this change in Vdd of about 3x would cause a 9x increase in dynamic power consumption. This may
 be worth it depending on the application, but it is possible that is tradeoff is not worth it. 
+
+### 4. Simulating Write Driver
+#### (a) Single-Bit Write Driver
+In Cadence, open the lab4_write_driver_sim and Launch ADE L. Load the saved state into the simulation and run the simulation. You should receive output waveforms, and use these waveforms to observe behavior, given by the lab4_write_driver_sigGen_nandita verilogA script.
+#### (b) 8-bit Write Driver
+Open the lab4_8_write_driver_sim and Launch ADE L. Load the saved state and run the simulation. You should obtain a set of waveforms on the plots. Select all the traces and go to Trace, Export, and then export the traces into a PSF file named lab4_8_write_driver. Then, open the 
