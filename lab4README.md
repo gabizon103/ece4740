@@ -54,4 +54,7 @@ be worth it depending on the application, but it is possible that is tradeoff is
 #### (a) Single-Bit Write Driver
 In Cadence, open the lab4_write_driver_sim and Launch ADE L. Load the saved state into the simulation and run the simulation. You should receive output waveforms, and use these waveforms to observe behavior, given by the lab4_write_driver_sigGen_nandita verilogA script.
 #### (b) 8-bit Write Driver
-Open the lab4_8_write_driver_sim and Launch ADE L. Load the saved state and run the simulation. You should obtain a set of waveforms on the plots. Select all the traces and go to Trace, Export, and then export the traces into a PSF file named lab4_8_write_driver. Then, open the 
+Open the lab4_8_write_driver_sim and Launch ADE L. Load the saved state and run the simulation. You should obtain a set of waveforms on the plots. Select all the traces and go to Trace, Export, and then export the traces into a PSF file named lab4_8_write_driver. Then, open the lab4_write_driver_testing.m script, and run the script in MATLAB. The results of the script should be displayed in the MATLAB terminal. 
+
+### 5. Simulating the SRAM
+In Cadence, open the lab4_sram_test file. Launch ADE L and load the saved cellview. Then, run your simualation. This is paired with the VerilogA file lab4_sram_test_gen. With the simulation, traces should appear; select all the traces and export them to a psf file titled lab4_sram_test. Then, navigate to the lab4_sram_testing.m script, and run this script, which verifies reads and writes to the 64 bit SRAM cell. The results of the testbench should display in the MATLAB terminal. 
